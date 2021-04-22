@@ -1,4 +1,14 @@
 <h1>Welcome to ChicagoCBD!</h1>
 <p>Enjoy our plethora of CBD products, ranging from flower to oils.</p>
-<img src = "/images/ccbd_logo.png">
+
+<hr>
+
+<% for(let i = 0; i <products.length;i++){%>
+    <product>
+        <h2 style=color:red><%=products[i].Name %></h2>
+        <p style=color:skyblue><%=products[i].Amount %></p>
+        <p style=color:skyblue><%=products[i].Strain %></p>
+    </product>    
+<%}%>
+
 
