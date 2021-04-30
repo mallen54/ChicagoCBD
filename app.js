@@ -29,6 +29,12 @@ var helpRouter = require('./routes/help');
 var privacyRouter = require('./routes/privacy');
 var productRouter = require('./routes/product');
 var categoryRouter = require('./routes/category');
+var customerRouter = require('./routes/customer');
+var supplierRouter = require('./routes/supplier');
+var saleOrderRouter = require('./routes/saleorder');
+var orderDetailRouter = require('./routes/orderdetail');
+var reviewRouter = require('./routes/review');
+var subscriptionRouter = require('./routes/subscription');
 
 var app = express();
 
@@ -50,6 +56,12 @@ app.use('/help', helpRouter);
 app.use('/privacy', privacyRouter);
 app.use('/product', productRouter);
 app.use('/category', categoryRouter);
+app.use('/customer', customerRouter);
+app.use('/supplier', supplierRouter);
+app.use('/saleorder', saleOrderRouter);
+app.use('/orderdetail', orderDetailRouter);
+app.use('/review', reviewRouter);
+app.use('/subscription', subscriptionRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

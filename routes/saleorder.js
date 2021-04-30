@@ -4,7 +4,7 @@ var router = express.Router();
 // Route to list all records. Display view to list all records 
 // ==================================================
 router.get('/', function(req, res, next) {
-let query = "SELECT product_id, productname, category_id, supplier_id, prodprice, status FROM product";
+let query = "SELECT order_id, customer_id, saledate, paymentstatus FROM saleorder";
 
  // execute query
  db.query(query, (err, result) => {
@@ -12,7 +12,7 @@ let query = "SELECT product_id, productname, category_id, supplier_id, prodprice
             console.log(err);
             res.render('error');
         }
-    res.render( 'product/allrecords' , {allrecs: result });
+    res.render( 'saleorder/allrecords' , {allrecs: result });
     });
 });
 
@@ -20,7 +20,7 @@ let query = "SELECT product_id, productname, category_id, supplier_id, prodprice
 // Route to view one specific record. Notice the view is one record
 // ==================================================
 router.get('/:recordid/show', function(req, res, next) {
-    let query = "SELECT product_id, productname, prodimage, description, category_id, supplier_id, subcategory_1, subcategory_2, strain, grams, prodprice, status FROM product WHERE product_id = " + req.params.recordid;
+    let query = "SELECT order_id, customer_id, saledate, customernotes, paymentstatus, authorizationnum FROM saleorder WHERE order_id = " + req.params.recordid;
     
     // execute query
     db.query(query, (err, result) => {
@@ -28,7 +28,7 @@ router.get('/:recordid/show', function(req, res, next) {
             console.log(err);
             res.render('error');
         } else {
-            res.render('product/onerec', {onerec: result[0] });
+            res.render('saleorder/onerec', {onerec: result[0] });
         }
     });
 });
@@ -38,7 +38,7 @@ router.get('/:recordid/show', function(req, res, next) {
 // Route to show empty form to obtain input form end-user.
 // ==================================================
 router.get('/addrecord', function(req, res, next) {
-    res.render('product/addrec');
+    res.render('saleorder/addrec');
 });
 
 
@@ -46,14 +46,14 @@ router.get('/addrecord', function(req, res, next) {
 // Route to obtain user input and save in database.
 // ==================================================
 router.post('/', function(req, res, next) {
-    let insertquery = "INSERT INTO product (productname, prodimage, description, category_id, supplier_id, subcategory_1, subcategory_2, strain, grams, prodprice, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    let insertquery = "INSERT INTO saleorder (customer_id, saledate, customernotes, paymentstatus, authorizationnum ) VALUES (?, ?, ?, ?, ?)";
     
-    db.query(insertquery,[req.body.productname, req.body.prodimage, req.body.description, req.body.category_id, req.body.supplier_id, req.body.subcategory_1, req.body.subcategory_2, req.body.strain, req.body.grams, req.body.prodprice, req.body.status],(err, result) => {
+    db.query(insertquery,[req.body.customer_id, req.body.saledate, req.body.customernotes, req.body.paymentstatus, req.body.authorizationnum],(err, result) => {
         if (err) {
             console.log(err);
             res.render('error');
         } else {
-            res.redirect( '/product');
+            res.redirect( '/saleorder');
         }
     });
 });
@@ -63,7 +63,7 @@ router.post('/', function(req, res, next) {
 // Route to edit one specific record.
 // ==================================================
 router.get( '/:recordid/edit', function(req, res, next) {
-    let query = "SELECT product_id, productname, prodimage, description, category_id, supplier_id, subcategory_1, subcategory_2, strain, grams, prodprice, status FROM product WHERE product_id = " + req.params.recordid ;
+    let query = "SELECT order_id, customer_id, saledate, customernotes, paymentstatus, authorizationnum FROM saleorder WHERE order_id = " + req.params.recordid ;
     
     // execute query
     db.query(query, (err, result) => {
@@ -71,7 +71,7 @@ router.get( '/:recordid/edit', function(req, res, next) {
             console.log(err);
             res.render('error');
         } else {
-            res.render( 'product/editrec', {onerec: result[0] });
+            res.render( 'saleorder/editrec', {onerec: result[0] });
         }
     });
 });
@@ -81,14 +81,14 @@ router.get( '/:recordid/edit', function(req, res, next) {
 // Route to save edited data in database.
 // ==================================================
 router.post('/save', function(req, res, next) {
-    let updatequery = "UPDATE product SET productname = ?, prodimage = ?, description = ?, category_id = ?, supplier_id = ?, subcategory_1 = ?, subcategory_2 = ?, strain = ?, grams = ?, prodprice = ?, status = ? WHERE product_id = " + req.body.product_id;
+    let updatequery = "UPDATE saleorder SET customer_id = ?, saledate = ?, customernotes = ?, paymentstatus = ?, authorizationnum = ? WHERE order_id = " + req.body.order_id;
     
-    db.query(updatequery,[req.body.productname, req.body.prodimage, req.body.description, req.body.category_id, req.body.supplier_id, req.body.subcategory_1, req.body.subcategory_2, req.body.strain, req.body.grams, req.body.prodprice, req.body.status],(err, result) => {
+    db.query(updatequery,[req.body.customer_id, req.body.saledate, req.body.customernotes, req.body.paymentstatus, req.body.authorizationnum],(err, result) => {
         if (err) {
             console.log(err);
             res.render('error');
         } else {
-            res.redirect( '/product');
+            res.redirect( '/saleorder');
         }
     });
 });
@@ -98,7 +98,7 @@ router.post('/save', function(req, res, next) {
 // Route to delete one specific record.
 // ==================================================
 router.get( '/:recordid/delete', function(req, res, next) {
-    let query = "DELETE FROM product WHERE product_id = " + req.params.recordid ;
+    let query = "DELETE FROM saleorder WHERE order_id = " + req.params.recordid ;
     
     // execute query
     db.query(query, (err, result) => {
@@ -106,7 +106,7 @@ router.get( '/:recordid/delete', function(req, res, next) {
             console.log(err);
             res.render('error');
         } else {
-            res.redirect( '/product');
+            res.redirect( '/saleorder');
         }
     });
 });

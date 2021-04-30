@@ -3,18 +3,17 @@
         <tr border=1>
             <th>Product ID</th>
             <th>Product Name</th>
-            <th>Supplier</th>
             <th>Category</th>
+            <th>Supplier</th>
             <th>Price</th>
             <th>Status</th>
-            <th>colspan="3">Actions</th>
         </tr>
         <% allrecs.forEach((recref, index) => { %>
             <tr>
                 <td><%= recref.product_id %></td>
                 <td><%= recref.productname %></td>
-                <td><%= recref.supplier_id %></td>
                 <td><%= recref.category_id %></td>
+                <td><%= recref.supplier_id %></td>
                 <td><%= recref.prodprice %></td>
                 <td><%= recref.status %></td>
                 <td><a href='/product/<%= recref.product_id %>/show'> Details</a></td>
