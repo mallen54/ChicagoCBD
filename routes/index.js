@@ -3,25 +3,27 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  let productlist =[
-    {
-      Name: 'Jupiter OG',
-      Amount: '17.8% CBD',
-      Strain: 'Indica',
-    },
-    {
-      Name: 'Sour Space Candy',
-      Amount: '22.5% CBD',
-      Strain: 'Hybrid',
-    },
-    {
-      Name: 'Moon Rocks',
-      Amount: '52% CBD',
-      Strain: 'Hybrid',
+  let query = "SELECT product_id,productname, prodimage, category_id, supplier_id, prodprice, status FROM product WHERE homepage = true ";
 
+ // execute query
+ db.query(query, (err, result) => {
+  if (err) {
+    console.log(err);
+    res.render('error');
+  }
+
+
+  let query = "SELECT promotion_id, promotitle, promoimage FROM promotion WHERE startdate <= CURRENT_DATE() and enddate >=CURRENT_DATE() ";
+  // execute query
+  db.query(query, (err, result2) => {
+    if (err) {
+      console.log(err);
+      res.render('error');
     }
-  ]
-  res.render('index', {products: productlist});
+  res.render('index', {allrecs: result, promos: result2 });
+  });
+});
+
 });
 
 module.exports = router;

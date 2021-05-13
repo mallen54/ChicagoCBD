@@ -5,13 +5,24 @@
     <tr> <td> Image: </td> <td> <input type="text" name="prodimage" required> </td> </tr>
     <tr> <td> Description: </td> <td> <textarea name="description" rows="10" cols="30"
     placeholder="Description"></textarea> </td> </tr>
-    <tr> <td> Category ID: </td> <td> <input type="number" name="category_id" required> </td> </tr>
+    <tr> <td> Category ID: </td> <td> 
+        <select name="category_id" required>
+            <optgroup label="Select Category">
+                <% for (var i = 0; i < category.length; i++) { %>
+                    <option value=<%= category[i].category_id %>>
+                        <%= category[i].categoryname %> </option>
+                <% } %>
+            </optgroup>
+        </select>
+        </td></tr>
+
     <tr> <td> Supplier ID: </td> <td> <input type="number" name="supplier_id" required> </td> </tr>
     <tr> <td> Sub Category 1: </td> <td> <input type="text" name="subcategory_1" required> </td> </tr>
     <tr> <td> Sub Category 2: </td> <td> <input type="text" name="subcategory_2" required> </td> </tr>
     <tr> <td> Strain: </td> <td> <input type="text" name="strain" required> </td> </tr>
     <tr> <td> Grams: </td> <td> <input type="text" name="grams" required> </td> </tr>
     <tr> <td> Price: </td> <td> <input type="text" name="prodprice" required> </td> </tr>
+    <tr> <td> Display on homepage?: </td> <td> <input type="checkbox" name="homepage"> </td> </tr>
     <tr> <td> Status: </td> <td> <select name="status" required>
                 <option selected disabled>Choose Status</option>
                 <option>Available</option>
