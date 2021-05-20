@@ -11,8 +11,18 @@
     </td>
     
     <td width='60%' align='center'><h1>ChicagoCBD</h1></td>
-    <td width='10%' align='center' style="color: red;">Login Control</td>
-    <td width='10%' align='center' style="color: red;">Cart Control</td>
+    <td width='10%' align='center'>
+        <% if(session.customer_id > 0) { %>
+            <b> Hello <b> <%= session.custname %>! </b> </br>
+            <a href='/customer/logout'>Logout</a>
+        <% } else { %>
+            <a href='/customer/register' style="color: gold">New Customer</a> </br>
+            <a href='/customer/login' style="color:gold">Login</a>
+        <% } %>
+    </td>
+    <td width='10%' align='center'>
+        <a href="/catalog/cart" style="color: gold;">Cart</a>
+    </td>
     </tr></table>
     
     <p><form action="/search" method="get">
@@ -23,6 +33,7 @@
 
     <ul>
         <li> <a href="/" style="color: red;">Home</a> </li>
+        <li> <a href="/catalog" style="color: red;">Catalog</a> </li>
         <li> <a href="/about" style="color: red;">About Us</a> </li>
         <li> <a href="/contact" style="color: red;">Contact Us</a> </li>
         <li> <a href="/product" style="color: red;">Product</a></li>
