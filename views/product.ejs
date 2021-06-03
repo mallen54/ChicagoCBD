@@ -1,0 +1,31 @@
+<product>
+    <form action="/catalog/add" method="post" >
+        <input type="hidden" name="product_id" value=<%= recref.product_id %> >
+    <table>
+        <tr>
+            <td><%= recref.productname %></td>
+            <td><%= Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(recref.prodprice) %></td>
+        </tr>
+        <tr>
+            <td><img src="/images/<%= recref.prodimage %>" width = '70' height = '70'></td>
+            <td><%= recref.status %></td>
+        </tr>
+        <tr>
+            <tr>
+            <td><b>Category:</b></td>
+            <td><%= recref.categoryname %></td>
+            </tr>
+
+            <tr>
+            <td><b>Supplier:</b></td>
+            <td><%= recref.suppliername %></td>
+            </tr>
+        </tr>
+        <tr>
+            <td><a href='/product/<%= recref.product_id %>/show'>Show Details</a></td>
+            <td>Quantity: <input type="text" name="qty" size=5 required></td>
+        </tr>
+    </table>
+    <button type="submit">Add to Cart</button>
+    </form>
+</product>

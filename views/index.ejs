@@ -7,17 +7,7 @@
 <td width="80%">
 <% if (allrecs.length > 0) {%>
     <% allrecs.forEach((recref, index) => { %>
-    <product>
-        <table>
-            <tr><td><%= recref.productname %></td></tr>
-            <tr><td><%= recref.prodimage %></td></tr>
-            <tr><td><%= recref.category_id %></td></tr>
-            <tr><td><%= recref.supplier_id %></td></tr>
-            <tr><td><%=Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(recref.prodprice) %></td></tr>
-            <tr><td><%= recref.status %></td></tr>
-            <tr><td><a href='/product/<%= recref.product_id %>/show'>Details</a></td></tr>
-        </table>
-    </product>
+        <%include product %>
     <% }); %>
 <% } %>
 </td>

@@ -3,7 +3,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  let query = "SELECT product_id,productname, prodimage, category_id, supplier_id, prodprice, status FROM product WHERE homepage = true ";
+  let query = "SELECT product_id, productname, prodimage, categoryname, suppliername, prodprice, status FROM product, category, supplier WHERE product.category_id = category.category_id AND product.supplier_id = supplier.supplier_id AND homepage = true";
 
  // execute query
  db.query(query, (err, result) => {

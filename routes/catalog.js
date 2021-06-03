@@ -4,7 +4,7 @@ var router = express.Router();
 // Route to list all products on the catalog
 // ==================================================
 router.get('/', function(req, res, next) {
-    let query = "SELECT product_id, productname, prodimage, category_id, supplier_id, prodprice, status FROM product";
+    let query = "SELECT product_id, productname, prodimage, categoryname, suppliername, prodprice, status FROM product, category, supplier WHERE product.category_id = category.category_id AND product.supplier_id = supplier.supplier_id";
     // execute query
     db.query(query, (err, result) => {
         if (err) {
@@ -72,6 +72,46 @@ router.get('/cart', function(req, res, next) {
                 res.render('cart', {cartitems: result, qtys: req.session.qty });
             }
         });
+    }
+});
+
+
+
+// ==================================================
+// Route save cart items to SALEORDER and ORDERDETAILS tables
+// ==================================================
+router.get('/checkout', function(req, res, next) {
+    // Check to make sure the customer has logged-in
+    if (typeof req.session.customer_id !== 'undefined' && req.session.customer_id ) {
+        // Save SALEORDER Record:
+        let insertquery = "INSERT INTO saleorder(customer_id, saledate, customernotes, paymentstatus, authorizationnum) VALUES (?, now(), 'None', 'Fully Paid', '12345678')";
+        db.query(insertquery,[req.session.customer_id],(err, result) => {
+            if (err) {
+                console.log(err);
+                res.render('error');
+            } else {
+                // Obtain the order_id value of the newly created SALEORDER Record
+                var order_id = result.insertId;
+                // Save ORDERDETAIL Records
+                // There could be one or more items in the shopping cart
+                req.session.cart.forEach((cartitem, index) => {
+                    // Perform ORDERDETAIL table insert
+                    let insertquery = "INSERT INTO orderdetail(order_id, product_id, saleprice, quantity) VALUES (?, ?, (SELECT prodprice from product where product_id = " + cartitem + "), ?)";
+                    db.query(insertquery,[order_id, cartitem, req.session.qty[index]],(err, result) => {
+                        if (err) {res.render('error');}
+                    });
+                });
+                // Empty out the items from the cart and quantity arrays
+                req.session.cart = [];
+                req.session.qty = [];
+                // Display confirmation page
+                res.render('checkout', {ordernum: order_id });
+            }
+        });
+    }
+    else {
+        // Prompt customer to login
+        res.redirect('/customer/login');
     }
 });
 

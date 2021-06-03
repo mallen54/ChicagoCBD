@@ -2,10 +2,17 @@ var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcryptjs');
 
+
+function adminonly(req,res,next){
+    if (!req.session.isadmin)
+    {return res.redirect('/customer/login');}
+    next();
+    }
+
 // ==================================================
 // Route to list all records. Display view to list all records 
 // ==================================================
-router.get('/', function(req, res, next) {
+router.get('/', adminonly, function(req, res, next) {
 let query = "SELECT customer_id, firstname, lastname FROM customer";
 
  // execute query
@@ -50,7 +57,7 @@ router.post('/', function(req, res, next) {
 // ==================================================
 // Route to view one specific record. Notice the view is one record
 // ==================================================
-router.get('/:recordid/show', function(req, res, next) {
+router.get('/:recordid/show', adminonly, function(req, res, next) {
     let query = "SELECT customer_id, firstname, lastname, email, phone, address1, address2, city, state, zip, username, password FROM customer WHERE customer_id = " + req.params.recordid;
     
     // execute query
@@ -68,7 +75,7 @@ router.get('/:recordid/show', function(req, res, next) {
 // ==================================================
 // Route to show empty form to obtain input form end-user.
 // ==================================================
-router.get('/addrecord', function(req, res, next) {
+router.get('/addrecord', adminonly, function(req, res, next) {
     res.render('customer/addrec');
 });
 
@@ -91,9 +98,35 @@ router.post('/', function(req, res, next) {
 
 
 // ==================================================
+// Route to enable customer profile update.
+// ==================================================
+router.get( '/update', function(req, res, next) {
+    if(req.session.customer_id)
+        {
+
+            let query = "SELECT customer_id, firstname, lastname, email, phone, address1, address2, city, state, zip, username, password FROM customer WHERE customer_id = " + req.session.customer_id;
+            
+            // execute query
+            db.query(query, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    res.render('error');
+                } else {
+                    res.render( 'customer/editrec', {onerec: result[0] });
+                }
+            });
+        } else {
+            res.redirect('/customer/login');
+        }
+});
+
+
+
+
+// ==================================================
 // Route to edit one specific record.
 // ==================================================
-router.get( '/:recordid/edit', function(req, res, next) {
+router.get( '/:recordid/edit', adminonly, function(req, res, next) {
     let query = "SELECT customer_id, firstname, lastname, email, phone, address1, address2, city, state, zip, username, password FROM customer WHERE customer_id = " + req.params.recordid ;
     
     // execute query
@@ -114,21 +147,27 @@ router.get( '/:recordid/edit', function(req, res, next) {
 router.post('/save', function(req, res, next) {
     let updatequery = "UPDATE customer SET firstname = ?, lastname = ?, email = ?, phone = ?, address1 = ?, address2 = ?, city = ?, state = ?, zip = ?, username = ?, password = ? WHERE customer_id = " + req.body.customer_id;
     
-    db.query(updatequery,[req.body.firstname, req.body.lastname, req.body.email, req.body.phone, req.body.address1, req.body.address2, req.body.city, req.body.state, req.body.zip, req.body.username, req.body.password],(err, result) => {
-        if (err) {
-            console.log(err);
-            res.render('error');
-        } else {
-            res.redirect( '/customer');
-        }
-    });
+    bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(req.body.password, salt, (err, hash) => {
+            if(err) { res.render('error');}
+
+                db.query(updatequery,[req.body.firstname, req.body.lastname, req.body.email, req.body.phone, req.body.address1, req.body.address2, req.body.city, req.body.state, req.body.zip, req.body.username, hash],(err, result) => {
+                    if (err) {
+                        console.log(err);
+                        res.render('error');
+                    } else {
+                        res.redirect( '/customer');
+                    }
+                });
+            });
+        });
 });
 
 
 // ==================================================
 // Route to delete one specific record.
 // ==================================================
-router.get( '/:recordid/delete', function(req, res, next) {
+router.get( '/:recordid/delete', adminonly, function(req, res, next) {
     let query = "DELETE FROM customer WHERE customer_id = " + req.params.recordid ;
     
     // execute query
@@ -145,7 +184,7 @@ router.get( '/:recordid/delete', function(req, res, next) {
 // ==================================================
 // Route to Provide Login Window
 // ==================================================
-router.post('/login', function(req, res, next) {
+router.get('/login', function(req, res, next) {
     res.render('customer/login', {message: "Please Login"});
 });
 
@@ -158,6 +197,7 @@ router.get('/logout', function(req, res, next) {
     req.session.custname = "";
     req.session.cart=[];
     req.session.qty=[];
+    req.session.isadmin = false;
     res.redirect('/');
 });
 
@@ -165,31 +205,37 @@ router.get('/logout', function(req, res, next) {
 // ==================================================
 // Route Check Login Credentials
 // ==================================================
-router.get('/login', function(req, res, next) {
-    let query = "select customer_id, firstname, lastname, password from customer WHERE username = '" + req.body.username + "'";
+router.post('/login', function(req, res, next) {
+    let query = "select customer_id, firstname, lastname, password, isadmin from customer WHERE username = '" + req.body.username + "'";
 
     // execute query
     db.query(query, (err, result) => {
         if (err) {res.render('error');}
         else {
-        if(result[0])
-        {
-            // Username was correct. Check if password is correct
-            bcrypt.compare(req.body.password, result[0].password, function(err, result1) {
-                if(result1) {
-                    // Password is correct. Set session variables for user.
-                    var custid = result[0].customer_id;
-                    req.session.customer_id = custid;
-                    var custname = result[0].firstname + " "+ result[0].lastname;
-                    req.session.custname = custname;
-                    res.redirect('/');
-                } else {
-                    // password do not match
-                    res.render('customer/login', {message: "Incorrect Password"});
-                }
-            });
-        }
-        else {res.render('customer/login', {message: "Incorrect Username"});}
+            if(result[0])
+            {
+                // Username was correct. Check if password is correct
+                bcrypt.compare(req.body.password, result[0].password, function(err, result1) {
+                    if(result1) {
+                        // Password is correct. Set session variables for user.
+                        var custid = result[0].customer_id;
+                        req.session.customer_id = custid;
+                        var custname = result[0].firstname + " "+ result[0].lastname;
+                        req.session.custname = custname;
+
+                        if(result[0].isadmin){
+                            var isadmin = true;
+                            req.session.isadmin = isadmin;
+                        }
+
+                        res.redirect('/');
+                    } else {
+                        // password do not match
+                        res.render('customer/login', {message: "Incorrect Password"});
+                    }
+                });
+            }
+            else {res.render('customer/login', {message: "Incorrect Username"});}
         }
    });
 });

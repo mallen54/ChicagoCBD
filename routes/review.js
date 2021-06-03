@@ -1,5 +1,13 @@
 var express = require('express');
 var router = express.Router();
+
+
+function adminonly(req,res,next){
+    if (!req.session.isadmin)
+    {return res.redirect('/customer/login');}
+    next();
+    }
+    
 // ==================================================
 // Route to list all records. Display view to list all records 
 // ==================================================
@@ -62,7 +70,7 @@ router.post('/', function(req, res, next) {
 // ==================================================
 // Route to edit one specific record.
 // ==================================================
-router.get( '/:recordid/edit', function(req, res, next) {
+router.get( '/:recordid/edit', adminonly, function(req, res, next) {
     let query = "SELECT review_id, customer_id, product_id, reviewdate, comments, rating, status FROM review WHERE review_id = " + req.params.recordid ;
     
     // execute query
@@ -80,7 +88,7 @@ router.get( '/:recordid/edit', function(req, res, next) {
 // ==================================================
 // Route to save edited data in database.
 // ==================================================
-router.post('/save', function(req, res, next) {
+router.post('/save', adminonly, function(req, res, next) {
     let updatequery = "UPDATE review SET customer_id = ?, product_id = ?, reviewdate = ?, comments = ?, rating = ?, status = ? WHERE review_id = " + req.body.review_id;
     
     db.query(updatequery,[req.body.customer_id, req.body.product_id, req.body.reviewdate, req.body.comments, req.body.rating, req.body.status],(err, result) => {
@@ -97,7 +105,7 @@ router.post('/save', function(req, res, next) {
 // ==================================================
 // Route to delete one specific record.
 // ==================================================
-router.get( '/:recordid/delete', function(req, res, next) {
+router.get( '/:recordid/delete', adminonly, function(req, res, next) {
     let query = "DELETE FROM review WHERE review_id = " + req.params.recordid ;
     
     // execute query
